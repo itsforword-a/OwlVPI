@@ -38,12 +38,28 @@ const handler = NextAuth({
       }
       return token
     },
+    async signIn({ user, account, profile }) {
+      console.log("SignIn attempt:", { user, account, profile })
+      return true
+    },
+  },
+  events: {
+    async signIn(message) {
+      console.log("SignIn event:", message)
+    },
+    async signOut(message) {
+      console.log("SignOut event:", message)
+    },
+    async error(message) {
+      console.error("Auth error:", message)
+    },
   },
   pages: {
     signIn: "/auth",
     error: "/auth/error",
   },
   secret: process.env.AUTH_SECRET,
+  debug: true,
 })
 
 export { handler as GET, handler as POST }
