@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import Discord from "next-auth/providers/discord"
-import Email from "next-auth/providers/email"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 
@@ -8,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL)
 console.log("DISCORD_CLIENT_ID:", process.env.DISCORD_CLIENT_ID)
 console.log("DISCORD_CLIENT_SECRET:", process.env.DISCORD_CLIENT_SECRET)
+console.log("DATABASE_URL:", process.env.DATABASE_URL)
 
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -21,17 +21,6 @@ const handler = NextAuth({
           prompt: "consent",
         },
       },
-    }),
-    Email({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: process.env.EMAIL_SERVER_PORT,
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
-      from: process.env.EMAIL_FROM,
     }),
   ],
   pages: {
@@ -60,7 +49,7 @@ const handler = NextAuth({
   },
   debug: true,
   session: {
-    strategy: "jwt",
+    strategy: "database",
   },
 })
 
