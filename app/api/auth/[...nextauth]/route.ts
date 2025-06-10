@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import Discord from "next-auth/providers/discord"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 
 // Log environment variables for debugging
 console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL)
@@ -10,7 +10,7 @@ console.log("DISCORD_CLIENT_SECRET:", process.env.DISCORD_CLIENT_SECRET)
 console.log("DATABASE_URL:", process.env.DATABASE_URL)
 
 const handler = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(db),
   providers: [
     Discord({
       clientId: process.env.DISCORD_CLIENT_ID!,
@@ -58,7 +58,7 @@ const handler = NextAuth({
   },
   debug: true,
   session: {
-    strategy: "jwt",
+    strategy: "database",
   },
   secret: process.env.NEXTAUTH_SECRET,
 })
