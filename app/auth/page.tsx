@@ -82,7 +82,7 @@ export default function AuthPage() {
 
   const handleDiscordLogin = () => {
     console.log("Attempting Discord sign-in...")
-    signIn("discord")
+    window.location.href = "https://discord.com/oauth2/authorize?client_id=1381668490418716692&response_type=code&redirect_uri=https%3A%2F%2Fowlvpi.vercel.app%2Fapi%2Fauth%2Fcallback%2Fdiscord&scope=identify+email"
   }
 
   const getErrorMessage = (error: string | null) => {

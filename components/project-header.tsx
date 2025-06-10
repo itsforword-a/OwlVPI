@@ -6,19 +6,18 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
-import { signOut, useSession } from "next-auth/react" // Import signOut and useSession
+import { signOut, useSession } from "next-auth/react"
 
 function OnlineStats() {
   const [online, setOnline] = useState(0)
 
   useEffect(() => {
-    // Симуляция получения онлайн статистики Discord
     const updateOnline = () => {
-      setOnline(Math.floor(Math.random() * 200) + 50) // 50-250 участников
+      setOnline(Math.floor(Math.random() * 200) + 50)
     }
 
     updateOnline()
-    const interval = setInterval(updateOnline, 30000) // обновление каждые 30 сек
+    const interval = setInterval(updateOnline, 30000)
 
     return () => clearInterval(interval)
   }, [])
@@ -32,7 +31,7 @@ function OnlineStats() {
 }
 
 function JoinDiscordButton() {
-  const discordInviteLink = "https://discord.gg/your-invite-link" // Replace with actual Discord invite
+  const discordInviteLink = "https://discord.gg/your-invite-link"
 
   return (
     <motion.a
@@ -56,13 +55,13 @@ function JoinDiscordButton() {
 
 export default function ProjectHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { data: session } = useSession() // Get session data
+  const { data: session } = useSession()
 
   const navItems = [
     { name: "Главная", href: "/" },
     { name: "Правила", href: "/rules" },
     { name: "Донат", href: "/donate" },
-    { name: "Новости", href: "/news" }, // Added News page
+    { name: "Новости", href: "/news" },
     { name: "Фракции", href: "/factions" },
     { name: "Вики", href: "https://your-project-wiki.gitbook.io/", external: true },
   ]
@@ -80,15 +79,14 @@ export default function ProjectHeader() {
           <Link href="/">
             <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
               <Image
-                src="/owlvpi-logo.png" // Updated logo path
+                src="/owlvpi-logo.png"
                 alt="OwlVPI Logo"
                 width={32}
                 height={32}
                 className="rounded-lg shadow-lg"
               />
               <div className="flex flex-col">
-                <span className="text-blue-300 font-bold text-lg tracking-wide">OwlVPI</span>{" "}
-                {/* Updated project name */}
+                <span className="text-blue-300 font-bold text-lg tracking-wide">OwlVPI</span>
                 <OnlineStats />
               </div>
             </motion.div>
@@ -96,7 +94,7 @@ export default function ProjectHeader() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item, index) => (
+            {navItems.map((item) => (
               <motion.div key={item.name}>
                 {item.external ? (
                   <a
@@ -125,12 +123,6 @@ export default function ProjectHeader() {
                 >
                   Профиль
                 </Link>
-                {/* Example for admin link, you'd add role check here */}
-                {/* {session.user?.role === 'admin' && (
-                  <Link href="/admin" className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide">
-                    Админ
-                  </Link>
-                )} */}
                 <button
                   onClick={() => signOut()}
                   className="px-3 py-1 bg-red-600/30 hover:bg-red-600/40 border border-red-500/40 rounded-md text-red-300 hover:text-red-200 transition-all duration-300 font-medium text-sm"
@@ -151,21 +143,6 @@ export default function ProjectHeader() {
           {/* Right side controls */}
           <div className="flex items-center gap-3">
             <JoinDiscordButton />
-            {session ? (
-              <button
-                onClick={() => signOut()}
-                className="hidden sm:inline-flex items-center px-3 py-1 bg-red-600/30 hover:bg-red-600/40 border border-red-500/40 rounded-md text-red-300 hover:text-red-200 transition-all duration-300 font-medium text-sm"
-              >
-                Выйти
-              </button>
-            ) : (
-              <Link
-                href="/auth"
-                className="hidden sm:inline-flex items-center px-3 py-1 bg-blue-600/30 hover:bg-blue-600/40 border border-blue-500/40 rounded-md text-blue-300 hover:text-blue-200 transition-all duration-300 font-medium text-sm"
-              >
-                Войти
-              </Link>
-            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -198,7 +175,6 @@ export default function ProjectHeader() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block py-2 text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
-                    onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
                   </a>
@@ -206,7 +182,6 @@ export default function ProjectHeader() {
                   <Link
                     href={item.href}
                     className="block py-2 text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
-                    onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
                   </Link>
@@ -217,17 +192,22 @@ export default function ProjectHeader() {
               <>
                 <Link
                   href="/profile"
-                  className="block py-2 text-blue-300 font-medium"
-                  onClick={() => setIsMenuOpen(false)}
+                  className="block py-2 text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
                 >
                   Профиль
                 </Link>
-                <button onClick={() => signOut()} className="block py-2 text-red-300 font-medium">
+                <button
+                  onClick={() => signOut()}
+                  className="w-full mt-2 px-3 py-2 bg-red-600/30 hover:bg-red-600/40 border border-red-500/40 rounded-md text-red-300 hover:text-red-200 transition-all duration-300 font-medium text-sm"
+                >
                   Выйти
                 </button>
               </>
             ) : (
-              <Link href="/auth" className="block py-2 text-blue-300 font-medium" onClick={() => setIsMenuOpen(false)}>
+              <Link
+                href="/auth"
+                className="block w-full mt-2 px-3 py-2 bg-blue-600/30 hover:bg-blue-600/40 border border-blue-500/40 rounded-md text-blue-300 hover:text-blue-200 transition-all duration-300 font-medium text-sm text-center"
+              >
                 Войти
               </Link>
             )}
