@@ -80,14 +80,30 @@ export default function AuthPage() {
   const searchParams = useSearchParams()
   const error = searchParams.get("error")
 
-  const handleDiscordLogin = () => {
-    console.log("Attempting Discord sign-in...")
-    window.location.href = "https://discord.com/oauth2/authorize?client_id=1381668490418716692&response_type=code&redirect_uri=https%3A%2F%2Fowlvpi.vercel.app%2Fapi%2Fauth%2Fcallback%2Fdiscord&scope=identify+email"
+  const handleDiscordLogin = async () => {
+    try {
+      console.log("Attempting Discord sign-in...")
+      const result = await signIn("discord", {
+        callbackUrl: "/",
+        redirect: true,
+      })
+      console.log("Sign in result:", result)
+    } catch (error) {
+      console.error("Sign in error:", error)
+    }
   }
 
   const getErrorMessage = (error: string | null) => {
     if (!error) return null
     switch (error) {
+      case "OAuthSignin":
+        return "Ошибка при входе через Discord. Попробуйте еще раз."
+      case "OAuthCallback":
+        return "Ошибка при обработке ответа от Discord. Попробуйте еще раз."
+      case "OAuthCreateAccount":
+        return "Не удалось создать аккаунт. Попробуйте еще раз."
+      case "Callback":
+        return "Ошибка при обработке ответа от Discord. Попробуйте еще раз."
       case "OAuthAccountNotLinked":
         return "Этот аккаунт уже используется с другим провайдером. Пожалуйста, войдите через Discord."
       case "AccessDenied":
@@ -95,7 +111,7 @@ export default function AuthPage() {
       case "Configuration":
         return "Ошибка конфигурации. Пожалуйста, свяжитесь с администрацией."
       default:
-        return "Произошла неизвестная ошибка. Пожалуйста, попробуйте еще раз."
+        return `Ошибка: ${error}`
     }
   }
 
