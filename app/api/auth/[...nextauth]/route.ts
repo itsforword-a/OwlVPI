@@ -15,8 +15,11 @@ console.log(
 console.log("DISCORD_CLIENT_ID:", process.env.DISCORD_CLIENT_ID)
 console.log("EMAIL_SERVER:", process.env.EMAIL_SERVER ? "Set" : "Not set")
 console.log("EMAIL_FROM:", process.env.EMAIL_FROM ? "Set" : "Not set")
+console.log("EMAIL_SERVER_USER:", process.env.EMAIL_SERVER_USER ? "Set" : "Not set")
+console.log("EMAIL_SERVER_PASSWORD:", process.env.EMAIL_SERVER_PASSWORD ? "Set" : "Not set")
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // <-- ЭТОТ ЭКСПОРТ КРИТИЧЕН
   adapter: PrismaAdapter(prisma),
   providers: [
     Discord({
@@ -49,4 +52,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   secret: process.env.AUTH_SECRET,
   basePath: "/api/auth",
+  // debug: true, // <-- МОЖНО ВКЛЮЧИТЬ ДЛЯ БОЛЕЕ ПОДРОБНЫХ ЛОГОВ, НО ВЫКЛЮЧИТЬ ДЛЯ ПРОДАКШЕНА
 })
