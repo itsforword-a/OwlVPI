@@ -31,7 +31,7 @@ function OnlineStats() {
 }
 
 function JoinDiscordButton() {
-  const discordInviteLink = "https://discord.gg/your-invite-link"
+  const discordInviteLink = "https://discord.gg/cB7hdKgUN2"
 
   return (
     <motion.a
