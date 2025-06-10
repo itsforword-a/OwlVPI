@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import Discord from "next-auth/providers/discord"
 import Email from "next-auth/providers/email"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { PrismaClient } from "../../../../prisma/generated/client" // <-- ИЗМЕНИТЕ ЭТУ СТРОКУ
+import { PrismaClient } from "@prisma/client" // <-- ЭТА СТРОКА ДОЛЖНА БЫТЬ ТАКОЙ
 
 const prisma = new PrismaClient()
 
