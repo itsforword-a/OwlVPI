@@ -21,6 +21,15 @@ const handler = NextAuth({
           prompt: "consent",
         },
       },
+      profile(profile) {
+        console.log("Discord profile:", profile)
+        return {
+          id: profile.id,
+          name: profile.username,
+          email: profile.email,
+          image: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
+        }
+      },
     }),
   ],
   pages: {
@@ -51,6 +60,7 @@ const handler = NextAuth({
   session: {
     strategy: "database",
   },
+  secret: process.env.NEXTAUTH_SECRET,
 })
 
 export { handler as GET, handler as POST }
