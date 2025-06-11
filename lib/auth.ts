@@ -14,6 +14,7 @@ export async function createSession(userData: any) {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24, // 24 hours
+    path: '/',
   })
 
   return token
@@ -30,6 +31,7 @@ export async function getSession() {
     )
     return payload
   } catch (error) {
+    console.error('Session verification error:', error)
     return null
   }
 }
@@ -39,6 +41,14 @@ export async function deleteSession() {
 }
 
 export async function handleDiscordCallback(code: string) {
+  console.log('Starting Discord callback handling...')
+  
+  const redirectUri = process.env.NODE_ENV === 'production'
+    ? 'https://owlvpi.vercel.app/api/auth/callback/discord'
+    : 'http://localhost:3000/api/auth/callback/discord'
+
+  console.log('Using redirect URI:', redirectUri)
+
   const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
     method: 'POST',
     body: new URLSearchParams({
@@ -46,14 +56,21 @@ export async function handleDiscordCallback(code: string) {
       client_secret: process.env.DISCORD_CLIENT_SECRET!,
       code,
       grant_type: 'authorization_code',
-      redirect_uri: `${process.env.AUTH_URL}/api/auth/callback/discord`,
+      redirect_uri: redirectUri,
     }),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   })
 
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text()
+    console.error('Discord token response error:', errorText)
+    throw new Error(`Failed to get Discord token: ${errorText}`)
+  }
+
   const tokens = await tokenResponse.json()
+  console.log('Received tokens from Discord')
 
   const userResponse = await fetch('https://discord.com/api/users/@me', {
     headers: {
@@ -61,7 +78,14 @@ export async function handleDiscordCallback(code: string) {
     },
   })
 
+  if (!userResponse.ok) {
+    const errorText = await userResponse.text()
+    console.error('Discord user response error:', errorText)
+    throw new Error(`Failed to get Discord user: ${errorText}`)
+  }
+
   const user = await userResponse.json()
+  console.log('Received user data from Discord')
 
   return {
     id: user.id,
