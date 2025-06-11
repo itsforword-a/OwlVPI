@@ -141,12 +141,12 @@ export default function AuthPage() {
           />
         </div>
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 w-full max-w-md mx-4"
+          transition={{ duration: 0.5 }}
+          className="relative z-10 w-full max-w-2xl"
         >
-          <div className="bg-blue-900/10 border border-blue-500/20 rounded-lg p-8 backdrop-blur-sm">
+          <div className="bg-blue-900/10 border border-blue-500/20 rounded-lg p-12 backdrop-blur-sm">
             <div className="text-center mb-8">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <Image

@@ -50,4 +50,20 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Application {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  status      String   @default("pending") // pending, approved, rejected
+  discordId   String
+  nickname    String
+  age         Int
+  experience  String
+  motivation  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  reviewedBy  String?
+  reviewNote  String?
 } 
