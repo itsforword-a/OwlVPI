@@ -10,30 +10,18 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { nickname, age, experience, motivation, discordId } = body
+    const { discordId, nickname, age, experience, motivation } = body
 
-    // Проверяем, не подавал ли пользователь анкету ранее
-    const existingApplication = await prisma.application.findFirst({
-      where: {
-        userId: session.user.id,
-      },
-    })
-
-    if (existingApplication) {
-      return new NextResponse('Application already exists', { status: 400 })
-    }
-
-    // Создаем новую анкету
     const application = await prisma.application.create({
       data: {
         userId: session.user.id,
+        discordId,
         nickname,
-        age,
+        age: parseInt(age),
         experience,
         motivation,
-        discordId,
-        status: 'pending',
-      },
+        status: 'pending'
+      }
     })
 
     return NextResponse.json(application)
@@ -50,16 +38,18 @@ export async function GET(req: Request) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    // Получаем анкету пользователя
-    const application = await prisma.application.findFirst({
+    const applications = await prisma.application.findMany({
       where: {
-        userId: session.user.id,
+        userId: session.user.id
       },
+      orderBy: {
+        createdAt: 'desc'
+      }
     })
 
-    return NextResponse.json(application)
+    return NextResponse.json(applications)
   } catch (error) {
-    console.error('Error fetching application:', error)
+    console.error('Error fetching applications:', error)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 } 

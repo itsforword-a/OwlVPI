@@ -1,159 +1,156 @@
 'use client'
 
-import { useAuth } from '@/components/auth-provider'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import ProjectHeader from '@/components/project-header'
-import { handleNewApplication } from '@/bot'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function ApplicationPage() {
-  const { user, loading } = useAuth()
+  const { data: session } = useSession()
   const router = useRouter()
   const [formData, setFormData] = useState({
+    discordId: '',
     nickname: '',
     age: '',
     experience: '',
-    motivation: '',
+    motivation: ''
   })
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth')
-    }
-  }, [user, loading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitting(true)
-    setError('')
-
+    
     try {
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          age: parseInt(formData.age),
-          discordId: user?.id,
-        }),
+        body: JSON.stringify(formData),
       })
 
-      if (!response.ok) {
-        throw new Error('Ошибка при отправке анкеты')
+      if (response.ok) {
+        router.push('/application/success')
+      } else {
+        throw new Error('Failed to submit application')
       }
-
-      const data = await response.json()
-      await handleNewApplication(data)
-      router.push('/profile')
-    } catch (err) {
-      setError('Произошла ошибка при отправке анкеты. Пожалуйста, попробуйте позже.')
-    } finally {
-      setSubmitting(false)
+    } catch (error) {
+      console.error('Error submitting application:', error)
     }
   }
 
-  if (loading) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  if (!session) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold">Загрузка...</h2>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Please sign in to submit an application</p>
       </div>
     )
   }
 
-  if (!user) {
-    return null
-  }
-
   return (
-    <>
-      <ProjectHeader />
-      <div className="min-h-screen bg-[#0d1117] pt-20 flex flex-col items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-blue-900/10 border border-blue-500/20 rounded-lg p-12 backdrop-blur-sm w-full max-w-2xl"
-        >
-          <h1 className="text-3xl font-bold text-blue-300 mb-8 text-center">Анкета для вступления</h1>
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-2xl mx-auto"
+      >
+        <h1 className="text-3xl font-bold text-center mb-8">Submit Application</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="discordId" className="block text-sm font-medium">
+              Discord ID
+            </label>
+            <input
+              type="text"
+              id="discordId"
+              name="discordId"
+              required
+              value={formData.discordId}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="nickname" className="block text-sm font-medium text-gray-200 mb-2">
-                Ваш никнейм
-              </label>
-              <input
-                type="text"
-                id="nickname"
-                value={formData.nickname}
-                onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
-                className="w-full px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+          <div>
+            <label htmlFor="nickname" className="block text-sm font-medium">
+              Nickname
+            </label>
+            <input
+              type="text"
+              id="nickname"
+              name="nickname"
+              required
+              value={formData.nickname}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
 
-            <div>
-              <label htmlFor="age" className="block text-sm font-medium text-gray-200 mb-2">
-                Ваш возраст
-              </label>
-              <input
-                type="number"
-                id="age"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                className="w-full px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                min="14"
-                max="100"
-                required
-              />
-            </div>
+          <div>
+            <label htmlFor="age" className="block text-sm font-medium">
+              Age
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              required
+              min="16"
+              max="99"
+              value={formData.age}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
 
-            <div>
-              <label htmlFor="experience" className="block text-sm font-medium text-gray-200 mb-2">
-                Опыт игры
-              </label>
-              <textarea
-                id="experience"
-                value={formData.experience}
-                onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                className="w-full px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
-                required
-              />
-            </div>
+          <div>
+            <label htmlFor="experience" className="block text-sm font-medium">
+              Experience
+            </label>
+            <textarea
+              id="experience"
+              name="experience"
+              required
+              rows={4}
+              value={formData.experience}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
 
-            <div>
-              <label htmlFor="motivation" className="block text-sm font-medium text-gray-200 mb-2">
-                Почему вы хотите вступить в проект?
-              </label>
-              <textarea
-                id="motivation"
-                value={formData.motivation}
-                onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
-                className="w-full px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
-                required
-              />
-            </div>
+          <div>
+            <label htmlFor="motivation" className="block text-sm font-medium">
+              Motivation
+            </label>
+            <textarea
+              id="motivation"
+              name="motivation"
+              required
+              rows={4}
+              value={formData.motivation}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
 
-            {error && (
-              <div className="text-red-400 text-sm text-center">{error}</div>
-            )}
-
+          <div>
             <button
               type="submit"
-              disabled={submitting}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {submitting ? 'Отправка...' : 'Отправить анкету'}
+              Submit Application
             </button>
-          </form>
-        </motion.div>
-      </div>
-    </>
+          </div>
+        </form>
+      </motion.div>
+    </div>
   )
 } 
