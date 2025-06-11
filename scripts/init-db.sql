@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY, -- This will store the Auth.js user ID (e.g., Discord ID, Google ID)
     email TEXT UNIQUE,
-    name TEXT,
+    name TEXT, 
     image TEXT,
     role TEXT DEFAULT 'guest', -- 'guest', 'player', 'admin'
     application_status TEXT DEFAULT 'not_submitted', -- 'not_submitted', 'pending', 'approved', 'rejected'
