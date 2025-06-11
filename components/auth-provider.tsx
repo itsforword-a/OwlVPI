@@ -1,15 +1,16 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useSession, signOut as nextAuthSignOut } from 'next-auth/react'
 
-interface User {
+type User = {
   id: string
-  name: string
-  email: string
-  image: string
+  name: string | null
+  email: string | null
+  image: string | null
 }
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null
   loading: boolean
   signOut: () => Promise<void>
@@ -22,38 +23,35 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession()
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    checkSession()
-  }, [])
-
-  const checkSession = async () => {
-    try {
-      const response = await fetch('/api/auth/session')
-      if (response.ok) {
-        const data = await response.json()
-        setUser(data.user)
-      }
-    } catch (error) {
-      console.error('Session check error:', error)
-    } finally {
-      setLoading(false)
+    if (session?.user) {
+      setUser({
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+      })
+    } else {
+      setUser(null)
     }
-  }
+  }, [session])
 
   const signOut = async () => {
-    try {
-      await fetch('/api/auth/signout', { method: 'POST' })
-      setUser(null)
-    } catch (error) {
-      console.error('Sign out error:', error)
-    }
+    await nextAuthSignOut()
+    setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading: status === 'loading',
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
