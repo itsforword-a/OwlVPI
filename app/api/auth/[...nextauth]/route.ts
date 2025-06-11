@@ -1,9 +1,10 @@
-import NextAuth from "next-auth"
-import DiscordProvider from "next-auth/providers/discord"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
+import NextAuth from 'next-auth'
+import { PrismaAdapter } from '@auth/prisma-adapter'
+import { prisma } from '@/lib/prisma'
+import DiscordProvider from 'next-auth/providers/discord'
+import type { NextAuthOptions, Session, User } from 'next-auth'
 
-export const authOptions = {
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     DiscordProvider({
@@ -12,7 +13,7 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, user }: { session: Session; user: User }) {
       if (session.user) {
         session.user.id = user.id
       }
@@ -20,8 +21,8 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: "/auth",
-    error: "/auth/error",
+    signIn: '/auth',
+    error: '/auth/error',
   },
 }
 
