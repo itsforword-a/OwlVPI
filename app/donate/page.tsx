@@ -1,8 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import ProjectHeader from "@/components/project-header" // Changed import
-import { Star, Zap, Gift, Shield, Gem, ScrollText, Handshake } from "lucide-react" // Added new icons
+import ProjectHeader from "@/components/project-header"
+import { Star, Zap, Gift, Shield, Gem, ScrollText, HandshakeIcon } from "lucide-react"
 
 const donatePackages = [
   {
@@ -29,7 +29,7 @@ const donatePackages = [
   {
     name: "Дипломатический Корпус",
     price: "250₽",
-    icon: <Handshake className="w-8 h-8" />,
+    icon: <HandshakeIcon className="w-8 h-8" />,
     color: "from-purple-400 to-purple-600",
     description: "Поддержка дипломатии",
     features: ["Доступ к закрытым дипломатическим чатам", "Возможность влиять на политику", "Специальные роли"],
@@ -68,10 +68,9 @@ const donatePackages = [
 export default function DonatePage() {
   return (
     <>
-      <ProjectHeader /> {/* Changed component name */}
+      <ProjectHeader />
       <div className="min-h-screen bg-[#0d1117] pt-20">
         {" "}
-        {/* Changed background color */}
         <div className="container mx-auto px-4 md:px-6 py-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
