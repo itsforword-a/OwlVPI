@@ -2,7 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import AuthProvider from "@/components/auth-provider" // Import the new AuthProvider
+import { AuthProvider } from '@/components/auth-provider'
+import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -69,7 +70,10 @@ export default function RootLayout({
         `}</style>
       </head>
       <body>
-        <AuthProvider>{children}</AuthProvider> {/* Use the new AuthProvider */}
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   )
