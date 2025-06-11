@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
 import { signOut, useSession } from "next-auth/react"
+import { useAuth } from '@/components/auth-provider'
+import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 function OnlineStats() {
   const [online, setOnline] = useState(0)
@@ -54,6 +57,8 @@ function JoinDiscordButton() {
 }
 
 export default function ProjectHeader() {
+  const { user, signOut: authSignOut } = useAuth()
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { data: session } = useSession()
 
@@ -65,6 +70,11 @@ export default function ProjectHeader() {
     { name: "Фракции", href: "/factions" },
     { name: "Вики", href: "https://your-project-wiki.gitbook.io/", external: true },
   ]
+
+  const handleSignOut = async () => {
+    await authSignOut()
+    router.push('/auth')
+  }
 
   return (
     <motion.header
@@ -115,7 +125,7 @@ export default function ProjectHeader() {
                 )}
               </motion.div>
             ))}
-            {session ? (
+            {user ? (
               <>
                 <Link
                   href="/profile"
@@ -123,12 +133,13 @@ export default function ProjectHeader() {
                 >
                   Профиль
                 </Link>
-                <button
-                  onClick={() => signOut()}
-                  className="px-3 py-1 bg-red-600/30 hover:bg-red-600/40 border border-red-500/40 rounded-md text-red-300 hover:text-red-200 transition-all duration-300 font-medium text-sm"
+                <Button
+                  variant="ghost"
+                  onClick={handleSignOut}
+                  className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium text-sm"
                 >
                   Выйти
-                </button>
+                </Button>
               </>
             ) : (
               <Link
@@ -188,7 +199,7 @@ export default function ProjectHeader() {
                 )}
               </motion.div>
             ))}
-            {session ? (
+            {user ? (
               <>
                 <Link
                   href="/profile"
@@ -196,12 +207,13 @@ export default function ProjectHeader() {
                 >
                   Профиль
                 </Link>
-                <button
-                  onClick={() => signOut()}
+                <Button
+                  variant="ghost"
+                  onClick={handleSignOut}
                   className="w-full mt-2 px-3 py-2 bg-red-600/30 hover:bg-red-600/40 border border-red-500/40 rounded-md text-red-300 hover:text-red-200 transition-all duration-300 font-medium text-sm"
                 >
                   Выйти
-                </button>
+                </Button>
               </>
             ) : (
               <Link

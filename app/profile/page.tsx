@@ -8,6 +8,8 @@ import ApplicationForm from "@/components/application-form" // Import the applic
 import { useEffect, useState } from "react"
 import { getUserData } from "@/app/actions/user" // Server Action to get user data
 import Image from "next/image" // Import Image component
+import { useAuth } from '@/components/auth-provider'
+import { useRouter } from 'next/navigation'
 
 // Extend the Session type to include custom properties
 declare module "next-auth" {
@@ -24,19 +26,26 @@ declare module "next-auth" {
 }
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
+  const { user, loading } = useAuth()
+  const router = useRouter()
   const [userData, setUserData] = useState<any | null>(null) // Declare type as any to avoid undeclared variable error
   const [loadingUserData, setLoadingUserData] = useState(true)
 
   useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth')
+    }
+  }, [user, loading, router])
+
+  useEffect(() => {
     const fetchUserData = async () => {
-      if (session?.user?.id) {
+      if (user?.id) {
         setLoadingUserData(true)
         // In a real app, you'd fetch user data from your database here
         // For now, simulate fetching and set default values
-        const fetchedData = await getUserData(session.user.id) // Call server action
+        const fetchedData = await getUserData(user.id) // Call server action
         setUserData({
-          ...session.user,
+          ...user,
           role: fetchedData?.role || "Игрок", // Default role
           applicationStatus: fetchedData?.applicationStatus || "not_submitted", // Default status
         })
@@ -44,32 +53,20 @@ export default function ProfilePage() {
       }
     }
     fetchUserData()
-  }, [session])
+  }, [user])
 
-  if (status === "loading" || loadingUserData) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-        <p className="ml-4 text-blue-300">Загрузка профиля...</p>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold">Загрузка...</h2>
+        </div>
       </div>
     )
   }
 
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center text-center text-gray-200">
-        <p className="text-xl mb-4">Вы не авторизованы.</p>
-        <p className="text-lg">Пожалуйста, войдите, чтобы просмотреть свой профиль.</p>
-        <motion.a
-          href="/auth"
-          className="mt-6 px-6 py-3 bg-blue-600/30 hover:bg-blue-600/40 border border-blue-500/40 rounded-lg text-blue-200 font-medium transition-all duration-300"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Войти
-        </motion.a>
-      </div>
-    )
+  if (!user) {
+    return null
   }
 
   const renderApplicationStatus = (status: string) => {
@@ -116,18 +113,18 @@ export default function ProfilePage() {
 
           <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
             <Image
-              src={session.user?.image || "/placeholder.svg?height=96&width=96"}
-              alt={session.user?.name || "User Avatar"}
+              src={user.image || "/placeholder.svg?height=96&width=96"}
+              alt={user.name || "User Avatar"}
               width={96}
               height={96}
               className="rounded-full border-4 border-blue-500/50 shadow-lg"
             />
             <div className="text-center md:text-left">
-              <h2 className="text-2xl font-semibold text-white">{session.user?.name || "Неизвестный пользователь"}</h2>
-              <p className="text-gray-400">{session.user?.email}</p>
+              <h2 className="text-2xl font-semibold text-white">{user.name || "Неизвестный пользователь"}</h2>
+              <p className="text-gray-400">{user.email}</p>
               <div className="flex items-center gap-2 text-blue-400 mt-2">
                 <User className="w-4 h-4" />
-                <span>ID: {session.user?.id}</span>
+                <span>ID: {user.id}</span>
               </div>
             </div>
           </div>
@@ -147,7 +144,7 @@ export default function ProfilePage() {
 
           {userData?.applicationStatus === "not_submitted" && (
             <div className="mt-8">
-              <ApplicationForm userId={session.user.id} />
+              <ApplicationForm userId={user.id} />
             </div>
           )}
 
