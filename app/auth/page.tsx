@@ -78,12 +78,18 @@ function ElegantShape({
 }
 
 export default function AuthPage() {
+  const clientId = process.env.DISCORD_CLIENT_ID
+  const redirectUri = `${process.env.AUTH_URL}/api/auth/callback/discord`
+  
+  if (!clientId) {
+    console.error('DISCORD_CLIENT_ID is not set')
+    return <div>Ошибка конфигурации</div>
+  }
+
+  const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`
+
   const searchParams = useSearchParams()
   const error = searchParams.get("error")
-
-  const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-    `${process.env.AUTH_URL}/api/auth/callback/discord`
-  )}&response_type=code&scope=identify%20email`
 
   const getErrorMessage = (error: string | null) => {
     if (!error) return null
