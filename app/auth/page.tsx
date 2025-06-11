@@ -1,14 +1,12 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 import { motion } from "framer-motion"
 import ProjectHeader from "@/components/project-header"
 import { AlertCircle } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { signIn } from "next-auth/react"
-import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 function ElegantShape({
@@ -78,40 +76,29 @@ function ElegantShape({
 }
 
 export default function AuthPage() {
-  const clientId = process.env.DISCORD_CLIENT_ID
-  const redirectUri = `${process.env.AUTH_URL}/api/auth/callback/discord`
-  
+  const [clientId, setClientId] = useState<string>('')
+  const [redirectUri, setRedirectUri] = useState<string>('')
+
+  useEffect(() => {
+    // Загружаем переменные окружения на клиенте
+    setClientId(process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID || '')
+    setRedirectUri(`${window.location.origin}/api/auth/callback/discord`)
+  }, [])
+
   if (!clientId) {
-    console.error('DISCORD_CLIENT_ID is not set')
-    return <div>Ошибка конфигурации</div>
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-6 shadow-lg">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-red-600">Ошибка конфигурации</h2>
+            <p className="mt-2 text-gray-600">DISCORD_CLIENT_ID не настроен</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`
-
-  const searchParams = useSearchParams()
-  const error = searchParams.get("error")
-
-  const getErrorMessage = (error: string | null) => {
-    if (!error) return null
-    switch (error) {
-      case "OAuthSignin":
-        return "Ошибка при входе через Discord. Попробуйте еще раз."
-      case "OAuthCallback":
-        return "Ошибка при обработке ответа от Discord. Попробуйте еще раз."
-      case "OAuthCreateAccount":
-        return "Не удалось создать аккаунт. Попробуйте еще раз."
-      case "Callback":
-        return "Ошибка при обработке ответа от Discord. Попробуйте еще раз."
-      case "OAuthAccountNotLinked":
-        return "Этот аккаунт уже используется с другим провайдером. Пожалуйста, войдите через Discord."
-      case "AccessDenied":
-        return "Доступ запрещен."
-      case "Configuration":
-        return "Ошибка конфигурации. Пожалуйста, свяжитесь с администрацией."
-      default:
-        return `Ошибка: ${error}`
-    }
-  }
 
   return (
     <>
@@ -175,17 +162,6 @@ export default function AuthPage() {
                 Добро пожаловать в систему OwlVPI ID! Пожалуйста, войдите через Discord, чтобы получить доступ ко всем возможностям!
               </p>
             </div>
-
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-900/20 border border-red-500/30 rounded-lg p-3 mb-6 text-red-300 text-sm flex items-center gap-2"
-              >
-                <AlertCircle className="w-5 h-5" />
-                {getErrorMessage(error)}
-              </motion.div>
-            )}
 
             <div className="mt-8">
               <Button
