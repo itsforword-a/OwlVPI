@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
-import { signOut, useSession } from "next-auth/react"
 import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
@@ -57,175 +56,147 @@ function JoinDiscordButton() {
 }
 
 export default function ProjectHeader() {
-  const { user, signOut: authSignOut } = useAuth()
+  const { user, signOut } = useAuth()
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { data: session } = useSession()
-
-  const navItems = [
-    { name: "Главная", href: "/" },
-    { name: "Правила", href: "/rules" },
-    { name: "Донат", href: "/donate" },
-    { name: "Новости", href: "/news" },
-    { name: "Фракции", href: "/factions" },
-    { name: "Вики", href: "https://your-project-wiki.gitbook.io/", external: true },
-  ]
 
   const handleSignOut = async () => {
-    await authSignOut()
+    await signOut()
     router.push('/auth')
   }
 
+  const navigation = [
+    { name: "Главная", href: "/" },
+    { name: "Новости", href: "/news" },
+    { name: "Правила", href: "/rules" },
+    { name: "Фракции", href: "/factions" },
+    { name: "Донат", href: "/donate" },
+  ]
+
   return (
-    <motion.header
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: [0.23, 0.86, 0.39, 0.96] }}
-      className="fixed top-0 left-0 right-0 z-50 bg-[#0d1117]/80 backdrop-blur-md"
-    >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between h-12">
-          {/* Logo */}
-          <Link href="/">
-            <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
-              <Image
-                src="/owlvpi-logo.png"
-                alt="OwlVPI Logo"
-                width={32}
-                height={32}
-                className="rounded-lg shadow-lg"
-              />
-              <div className="flex flex-col">
-                <span className="text-blue-300 font-bold text-lg tracking-wide">OwlVPI</span>
-                <OnlineStats />
-              </div>
-            </motion.div>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0d1117]/80 backdrop-blur-md border-b border-blue-500/10">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="text-xl font-bold text-blue-300">
+            Hero Geometric
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => (
-              <motion.div key={item.name}>
-                {item.external ? (
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
-                  >
-                    {item.name}
-                  </a>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
-                  >
-                    {item.name}
-                  </Link>
-                )}
-              </motion.div>
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 text-sm"
+              >
+                {item.name}
+              </Link>
             ))}
             {user ? (
               <>
-                <Link
-                  href="/profile"
-                  className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
-                >
+                <Link href="/profile" className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 text-sm">
                   Профиль
                 </Link>
                 <Button
                   variant="ghost"
                   onClick={handleSignOut}
-                  className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium text-sm"
+                  className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 text-sm"
                 >
                   Выйти
                 </Button>
               </>
             ) : (
-              <Link
-                href="/auth"
-                className="px-3 py-1 bg-blue-600/30 hover:bg-blue-600/40 border border-blue-500/40 rounded-md text-blue-300 hover:text-blue-200 transition-all duration-300 font-medium text-sm"
-              >
-                Войти
+              <Link href="/auth">
+                <Button variant="default" className="text-sm">
+                  Войти
+                </Button>
               </Link>
             )}
           </nav>
 
-          {/* Right side controls */}
-          <div className="flex items-center gap-3">
-            <JoinDiscordButton />
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden text-blue-300 hover:text-blue-200 transition-colors"
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-gray-200/80 hover:text-blue-300"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+              {isMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <motion.nav
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             className="md:hidden py-4"
           >
-            {navItems.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index }}
-              >
-                {item.external ? (
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block py-2 text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
-                  >
-                    {item.name}
-                  </a>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="block py-2 text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
-                  >
-                    {item.name}
-                  </Link>
-                )}
-              </motion.div>
-            ))}
-            {user ? (
-              <>
+            <nav className="flex flex-col space-y-4">
+              {navigation.map((item) => (
                 <Link
-                  href="/profile"
-                  className="block py-2 text-gray-200/80 hover:text-blue-300 transition-colors duration-300 font-medium tracking-wide"
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 text-sm"
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  Профиль
+                  {item.name}
                 </Link>
-                <Button
-                  variant="ghost"
-                  onClick={handleSignOut}
-                  className="w-full mt-2 px-3 py-2 bg-red-600/30 hover:bg-red-600/40 border border-red-500/40 rounded-md text-red-300 hover:text-red-200 transition-all duration-300 font-medium text-sm"
+              ))}
+              {user ? (
+                <>
+                  <Link
+                    href="/profile"
+                    className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 text-sm"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Профиль
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      handleSignOut()
+                      setIsMenuOpen(false)
+                    }}
+                    className="text-gray-200/80 hover:text-blue-300 transition-colors duration-300 text-sm"
+                  >
+                    Выйти
+                  </Button>
+                </>
+              ) : (
+                <Link
+                  href="/auth"
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  Выйти
-                </Button>
-              </>
-            ) : (
-              <Link
-                href="/auth"
-                className="block w-full mt-2 px-3 py-2 bg-blue-600/30 hover:bg-blue-600/40 border border-blue-500/40 rounded-md text-blue-300 hover:text-blue-200 transition-all duration-300 font-medium text-sm text-center"
-              >
-                Войти
-              </Link>
-            )}
-          </motion.nav>
+                  <Button variant="default" className="w-full text-sm">
+                    Войти
+                  </Button>
+                </Link>
+              )}
+            </nav>
+          </motion.div>
         )}
       </div>
-    </motion.header>
+    </header>
   )
 }

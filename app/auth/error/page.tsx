@@ -14,26 +14,12 @@ export default function ErrorPage() {
     if (!error) return "Произошла неизвестная ошибка"
     
     switch (error) {
-      case "OAuthSignin":
-        return "Ошибка при входе через Discord. Попробуйте еще раз."
-      case "OAuthCallback":
+      case "NoCode":
+        return "Не получен код авторизации от Discord. Попробуйте еще раз."
+      case "CallbackError":
         return "Ошибка при обработке ответа от Discord. Попробуйте еще раз."
-      case "OAuthCreateAccount":
-        return "Не удалось создать аккаунт. Попробуйте еще раз."
-      case "EmailCreateAccount":
-        return "Не удалось создать аккаунт с email. Попробуйте еще раз."
-      case "Callback":
-        return "Ошибка при обработке ответа от Discord. Попробуйте еще раз."
-      case "OAuthAccountNotLinked":
-        return "Этот email уже используется с другим провайдером. Пожалуйста, войдите через Discord."
-      case "EmailSignin":
-        return "Ошибка при отправке email. Попробуйте еще раз."
-      case "CredentialsSignin":
-        return "Неверные учетные данные. Попробуйте еще раз."
-      case "SessionRequired":
-        return "Требуется авторизация. Пожалуйста, войдите в систему."
-      case "Default":
-        return "Произошла неизвестная ошибка. Пожалуйста, попробуйте еще раз."
+      case "SessionError":
+        return "Ошибка при создании сессии. Попробуйте еще раз."
       default:
         return `Ошибка: ${error}`
     }
