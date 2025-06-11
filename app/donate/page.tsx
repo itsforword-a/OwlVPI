@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 
-const DonateClient = dynamic(() => import('./donate-client'), {
+const DonateClient = dynamicImport(() => import('./donate-client'), {
   ssr: false,
 })
 
