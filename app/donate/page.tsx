@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import ProjectHeader from "@/components/project-header"
-import { Star, Zap, Gift, Shield, Gem, ScrollText, HandshakeIcon } from "lucide-react"
+import { Star, Zap, Gift, Shield, Gem, ScrollText, Handshake } from "lucide-react"
 
 const donatePackages = [
   {
@@ -29,7 +29,7 @@ const donatePackages = [
   {
     name: "Дипломатический Корпус",
     price: "250₽",
-    icon: <HandshakeIcon className="w-8 h-8" />,
+    icon: <Handshake className="w-8 h-8" />,
     color: "from-purple-400 to-purple-600",
     description: "Поддержка дипломатии",
     features: ["Доступ к закрытым дипломатическим чатам", "Возможность влиять на политику", "Специальные роли"],
