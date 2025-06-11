@@ -14,6 +14,13 @@ export async function getDiscordToken(code: string) {
     grant_type: 'authorization_code',
     code,
     redirect_uri: DISCORD_REDIRECT_URI,
+    scope: 'identify email',
+  })
+
+  console.log('Requesting Discord token with params:', {
+    client_id: DISCORD_CLIENT_ID,
+    redirect_uri: DISCORD_REDIRECT_URI,
+    scope: 'identify email',
   })
 
   const response = await fetch('https://discord.com/api/oauth2/token', {
@@ -25,7 +32,13 @@ export async function getDiscordToken(code: string) {
   })
 
   if (!response.ok) {
-    throw new Error('Failed to get Discord token')
+    const errorData = await response.text()
+    console.error('Discord token error:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorData,
+    })
+    throw new Error(`Failed to get Discord token: ${response.status} ${response.statusText}`)
   }
 
   return response.json()
@@ -39,7 +52,13 @@ export async function getDiscordUser(accessToken: string) {
   })
 
   if (!response.ok) {
-    throw new Error('Failed to get Discord user')
+    const errorData = await response.text()
+    console.error('Discord user error:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorData,
+    })
+    throw new Error(`Failed to get Discord user: ${response.status} ${response.statusText}`)
   }
 
   return response.json()
