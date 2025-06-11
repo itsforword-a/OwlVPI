@@ -1,28 +1,64 @@
-import { createSession } from '@/lib/auth'
-import { handleDiscordCallback } from '@/lib/auth'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getDiscordUser, getDiscordToken } from '@/lib/auth'
+import { signJwt } from '@/lib/auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const searchParams = request.nextUrl.searchParams
     const code = searchParams.get('code')
+    const error = searchParams.get('error')
 
-    if (!code) {
-      console.error('No code provided in callback')
-      return NextResponse.redirect('/auth/error?error=NoCode')
+    if (error) {
+      console.error('Discord auth error:', error)
+      return NextResponse.redirect(new URL('/auth/error?error=' + error, request.url))
     }
 
-    console.log('Received code from Discord:', code)
+    if (!code) {
+      console.error('No code provided')
+      return NextResponse.redirect(new URL('/auth/error?error=NoCode', request.url))
+    }
 
-    const user = await handleDiscordCallback(code)
-    console.log('User data received:', user)
+    // Get the base URL from the request
+    const baseUrl = request.nextUrl.origin
 
-    await createSession(user)
-    console.log('Session created successfully')
+    try {
+      const tokenData = await getDiscordToken(code)
+      const userData = await getDiscordUser(tokenData.access_token)
 
-    return NextResponse.redirect('/')
+      if (!userData) {
+        console.error('Failed to get user data from Discord')
+        return NextResponse.redirect(new URL('/auth/error?error=NoUserData', request.url))
+      }
+
+      // Create session token
+      const token = await signJwt({
+        id: userData.id,
+        name: userData.username,
+        email: userData.email,
+        image: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`,
+      })
+
+      // Create response with redirect
+      const response = NextResponse.redirect(new URL('/', baseUrl))
+
+      // Set the token in an HTTP-only cookie
+      response.cookies.set({
+        name: 'token',
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+      })
+
+      return response
+    } catch (error) {
+      console.error('Discord callback error:', error)
+      return NextResponse.redirect(new URL('/auth/error?error=CallbackError', request.url))
+    }
   } catch (error) {
-    console.error('Discord callback error:', error)
-    return NextResponse.redirect('/auth/error?error=CallbackError')
+    console.error('Unexpected error in Discord callback:', error)
+    return NextResponse.redirect(new URL('/auth/error?error=UnexpectedError', request.url))
   }
 } 
