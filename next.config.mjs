@@ -8,6 +8,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['cdn.discordapp.com'],
   },
   output: 'standalone',
   experimental: {
